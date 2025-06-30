@@ -75,7 +75,7 @@ namespace PeliculasAPI.Controllers
                 return NotFound();
             }
 
-            _context.Remove(id);
+            _context.Remove(new Genero() { Id = id });
             await _context.SaveChangesAsync();
             return NoContent();
         }

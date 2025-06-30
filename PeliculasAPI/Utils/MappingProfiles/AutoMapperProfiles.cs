@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PeliculasAPI.DAL.DTOs.ActorDTOs;
 using PeliculasAPI.DAL.DTOs.GeneroDTOs;
 using PeliculasAPI.DAL.Model;
 
@@ -10,6 +11,9 @@ namespace PeliculasAPI.Utils.MappingProfiles
         {
             CreateMap<Genero, GeneroDTO>().ReverseMap();
             CreateMap<GeneroCreacionDTO, Genero>();
+            
+            CreateMap<Actor, ActorDTO>().ReverseMap();
+            CreateMap<ActorCreacionDTO, Actor>();
         }
     }
 }

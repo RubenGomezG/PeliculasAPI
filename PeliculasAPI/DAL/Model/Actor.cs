@@ -2,11 +2,13 @@
 
 namespace PeliculasAPI.DAL.Model
 {
-    public class Genero
+    public class Actor
     {
         public int Id { get; set; }
         [Required]
-        [StringLength(40)]
+        [StringLength(120)]
         public string Nombre { get; set; }
+        public DateTime FechaNacimiento { get; set; }
+        public string Foto { get; set; }
     }
 }

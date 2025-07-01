@@ -10,6 +10,8 @@ using System.Text;
 //using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PeliculasAPI.BLL.Services.Impl;
+using PeliculasAPI.BLL.Services.Interfaces;
 using PeliculasAPI.DAL;
 //using Microsoft.AspNetCore.Mvc;
 //using Microsoft.EntityFrameworkCore;
@@ -39,7 +41,7 @@ namespace PeliculasAPI
         {
             services.AddAutoMapper(typeof(Startup));
 
-            //services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
+            services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
             services.AddHttpContextAccessor();
 
             //services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
@@ -93,7 +95,7 @@ namespace PeliculasAPI
 
             app.UseHttpsRedirection();
 
-            //app.UseStaticFiles();
+            app.UseStaticFiles();
 
             app.UseRouting();
 

@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.DAL;
+using PeliculasAPI.DAL.DTOs;
 using PeliculasAPI.DAL.DTOs.ActorDTOs;
 using PeliculasAPI.DAL.Model;
+using PeliculasAPI.Utils.Extensions;
 
 namespace PeliculasAPI.Controllers
 {
@@ -21,9 +23,11 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ActorDTO>>> Get()
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            List<Actor> entidades = await _context.Actores.ToListAsync();
+            IQueryable<Actor> queryable = _context.Actores.AsQueryable();
+            await HttpContext.InsertarParametrosPaginacion(queryable, paginacionDTO.CantidadRegistrosPorPagina);
+            List<Actor> entidades = await queryable.Paginar(paginacionDTO).ToListAsync();
             return _mapper.Map<List<ActorDTO>>(entidades);
         }
 
@@ -40,7 +44,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ActorCreacionDTO actorCreacionDTO)
+        public async Task<ActionResult> Post([FromForm] ActorCreacionDTO actorCreacionDTO)
         {
             Actor actor = _mapper.Map<Actor>(actorCreacionDTO);
             _context.Add(actor);

@@ -7,6 +7,6 @@ namespace PeliculasAPI.DAL.DTOs.GeneroDTOs
         public int Id { get; set; }
         [Required]
         [StringLength(40)]
-        public required string Nombre { get; set; }
+        public string Nombre { get; set; }
     }
 }

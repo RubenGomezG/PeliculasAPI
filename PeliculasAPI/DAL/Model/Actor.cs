@@ -10,5 +10,7 @@ namespace PeliculasAPI.DAL.Model
         public string Nombre { get; set; }
         public DateTime FechaNacimiento { get; set; }
         public string Foto { get; set; }
+
+        public List<ActorPelicula> Peliculas { get; set; }
     }
 }

@@ -8,5 +8,6 @@ namespace PeliculasAPI.DAL.Model
         [Required]
         [StringLength(40)]
         public string Nombre { get; set; }
+        public List<GeneroPelicula> Peliculas { get; set; }
     }
 }

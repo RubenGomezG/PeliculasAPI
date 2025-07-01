@@ -62,7 +62,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpGet("filtro")]
-        public async Task<ActionResult<List<PeliculaDTO>>> Filtrar(FiltroPeliculasDTO filtroPeliculasDTO)
+        public async Task<ActionResult<List<PeliculaDTO>>> Filtrar([FromQuery] FiltroPeliculasDTO filtroPeliculasDTO)
         {
             IQueryable<Pelicula> queryable = _context.Peliculas.AsQueryable();
 

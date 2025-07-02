@@ -14,5 +14,6 @@ namespace PeliculasAPI.DAL.Model
         public string Poster { get; set; }
         public List<ActorPelicula> Actores { get; set; }
         public List<GeneroPelicula> Generos { get; set; }
+        public List<PeliculasSalasDeCine> SalasDeCine { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace PeliculasAPI.Controllers
 {
     [ApiController]
     [Route("api/peliculas")]
-    public class PeliculasController : ControllerBase
+    public class PeliculasController : CustomControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -22,21 +22,22 @@ namespace PeliculasAPI.Controllers
         private readonly ILogger<PeliculasController> _logger;
         private readonly string contenedor = "peliculas";
 
-        public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos, ILogger<PeliculasController> logger)
+        public PeliculasController(ApplicationDbContext context,
+            IMapper mapper,
+            IAlmacenadorArchivos almacenadorArchivos,
+            ILogger<PeliculasController> logger)
+            : base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
             _almacenadorArchivos = almacenadorArchivos;
-            this._logger = logger;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PeliculaDTO>>> Get(PaginacionDTO paginacionDTO)
+        public async Task<ActionResult<List<PeliculaDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            IQueryable<Pelicula> queryable = _context.Peliculas.AsQueryable();
-            await HttpContext.InsertarParametrosPaginacion(queryable, paginacionDTO.CantidadRegistrosPorPagina);
-            List<Pelicula> peliculas = await queryable.Paginar(paginacionDTO).ToListAsync();
-            return _mapper.Map<List<PeliculaDTO>>(peliculas);
+            return await Get<Pelicula, PeliculaDTO>(paginacionDTO);
         }
 
         [HttpGet]
@@ -151,17 +152,6 @@ namespace PeliculasAPI.Controllers
             return CreatedAtRoute("obtenerActor", new { id = peliculaDto.Id }, peliculaDto);
         }
 
-        private void AsignarOrdenActores(Pelicula pelicula)
-        {
-            if (pelicula.Actores != null)
-            {
-                for (int i = 0; i < pelicula.Actores.Count; i++)
-                {
-                    pelicula.Actores[i].Orden = i;
-                }
-            }
-        }
-
         [HttpPut]
         public async Task<ActionResult> Put(int id, PeliculaCreacionDTO peliculaCreacionDTO)
         {
@@ -194,14 +184,18 @@ namespace PeliculasAPI.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            if (!_context.Peliculas.Any(x => x.Id == id))
-            {
-                return NotFound();
-            }
+            return await Delete<Pelicula>(id);
+        }
 
-            _context.Remove(new Pelicula() { Id = id });
-            await _context.SaveChangesAsync();
-            return NoContent();
+        private void AsignarOrdenActores(Pelicula pelicula)
+        {
+            if (pelicula.Actores != null)
+            {
+                for (int i = 0; i < pelicula.Actores.Count; i++)
+                {
+                    pelicula.Actores[i].Orden = i;
+                }
+            }
         }
     }
 }

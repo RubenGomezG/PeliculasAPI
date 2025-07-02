@@ -56,7 +56,7 @@ namespace PeliculasAPI.Controllers
             await _context.SaveChangesAsync();
             var dtoLectura = _mapper.Map<TLectura>(entidad);
 
-            return CreatedAtRoute("obtenerGenero", new { id = entidad.Id }, dtoLectura);
+            return CreatedAtRoute(nombreRuta, new { id = entidad.Id }, dtoLectura);
         }
 
         protected async Task<ActionResult> Put<TCreacion, TEntidad>(TCreacion creacionDTO, int id) where TEntidad : class, IId

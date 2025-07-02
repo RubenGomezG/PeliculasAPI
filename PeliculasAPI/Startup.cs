@@ -2,28 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutoMapper;
+
 //using System.Threading.Tasks;
-//using AutoMapper;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 //using Microsoft.AspNetCore.Builder;
 //using Microsoft.AspNetCore.Hosting;
 //using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using PeliculasAPI.BLL.Services.Impl;
 using PeliculasAPI.BLL.Services.Interfaces;
 using PeliculasAPI.DAL;
+using PeliculasAPI.Utils.MappingProfiles;
 //using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.DependencyInjection;
 //using Microsoft.Extensions.Hosting;
-//using Microsoft.Extensions.Logging;
 //using Microsoft.IdentityModel.Tokens;
-//using NetTopologySuite;
-//using NetTopologySuite.Geometries;
-//using PeliculasAPI.Helpers;
-//using PeliculasAPI.Servicios;
 
 namespace PeliculasAPI
 {
@@ -44,23 +42,23 @@ namespace PeliculasAPI
             services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
             services.AddHttpContextAccessor();
 
-            //services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
+            services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
 
             //services.AddScoped<PeliculaExisteAttribute>();
 
-            //services.AddSingleton(provider =>
+            services.AddSingleton(provider =>
 
-            //    new MapperConfiguration(config =>
-            //    {
-            //        var geometryFactory = provider.GetRequiredService<GeometryFactory>();
-            //        config.AddProfile(new AutoMapperProfiles(geometryFactory));
-            //    }).CreateMapper()
-            //);
+                new MapperConfiguration(config =>
+                {
+                    var geometryFactory = provider.GetRequiredService<GeometryFactory>();
+                    config.AddProfile(new AutoMapperProfiles(geometryFactory));
+                }).CreateMapper()
+            );
 
             services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //sqlServerOptions => sqlServerOptions.UseNetTopologySuite()
-            //));
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+            sqlServerOptions => sqlServerOptions.UseNetTopologySuite()
+            ));
 
             services.AddControllers();
             services.AddEndpointsApiExplorer();

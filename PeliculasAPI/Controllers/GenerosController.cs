@@ -9,75 +9,41 @@ namespace PeliculasAPI.Controllers
 {
     [ApiController]
     [Route("api/generos")]
-    public class GenerosController : ControllerBase
+    public class GenerosController : CustomControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-
-        public GenerosController(ApplicationDbContext context, IMapper mapper)
+        public GenerosController(ApplicationDbContext context, IMapper mapper) : base(context,mapper)
         {
-            _context = context;
-            _mapper = mapper;
+
         }
 
         [HttpGet]
         public async Task<ActionResult<List<GeneroDTO>>> Get()
         {
-            List<Genero> entidades = await _context.Generos.ToListAsync();
-            List<GeneroDTO> dtos = _mapper.Map<List<GeneroDTO>>(entidades);
-            return dtos;
+            return await Get<Genero, GeneroDTO>();
         }
 
         [HttpGet("{id:int}", Name = "obtenerGenero")]
         public async Task<ActionResult<GeneroDTO>> Get(int id)
         {
-            Genero genero = await _context.Generos.FirstOrDefaultAsync(x => x.Id == id);
-            if (genero == null)
-            {
-                return NotFound();
-            }
-
-            GeneroDTO dto = _mapper.Map<GeneroDTO>(genero);
-            return dto;
+            return await Get<Genero, GeneroDTO>(id);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
-            Genero genero = _mapper.Map<Genero>(generoCreacionDTO);
-            _context.Add(genero);
-            await _context.SaveChangesAsync();
-            var generoDTO = _mapper.Map<GeneroDTO>(genero);
-
-            return CreatedAtRoute("obtenerGenero", new { id = generoDTO.Id}, generoDTO);
+            return await Post<GeneroCreacionDTO, Genero, GeneroDTO>(generoCreacionDTO, "obtenerGenero");
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, GeneroCreacionDTO generoDTO)
         {
-            if (!_context.Generos.Any(x => x.Id == id))
-            {
-                return NotFound();
-            }
-
-            Genero genero = _mapper.Map<Genero>(generoDTO);
-            genero.Id = id;
-            _context.Entry(genero).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return await Put<GeneroCreacionDTO, Genero>(generoDTO, id);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            if (!_context.Generos.Any(x => x.Id == id))
-            {
-                return NotFound();
-            }
-
-            _context.Remove(new Genero() { Id = id });
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return await Delete<Genero>(id);
         }
     }
 }

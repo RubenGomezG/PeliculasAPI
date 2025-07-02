@@ -14,6 +14,7 @@
         public int GeneroId { get; set; }
         public bool EnCines { get; set; }
         public bool PorEstrenar { get; set; }
-
+        public string CampoOrdenacion { get; set; }
+        public bool OrdenAscendente { get; set; } = true;
     }
 }

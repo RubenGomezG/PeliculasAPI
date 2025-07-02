@@ -8,6 +8,7 @@ using PeliculasAPI.DAL.DTOs.ActorDTOs;
 using PeliculasAPI.DAL.DTOs.PeliculaDTOs;
 using PeliculasAPI.DAL.Model;
 using PeliculasAPI.Utils.Extensions;
+using System.Linq.Dynamic.Core;
 
 namespace PeliculasAPI.Controllers
 {
@@ -18,13 +19,15 @@ namespace PeliculasAPI.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IAlmacenadorArchivos _almacenadorArchivos;
+        private readonly ILogger<PeliculasController> _logger;
         private readonly string contenedor = "peliculas";
 
-        public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos)
+        public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos, ILogger<PeliculasController> logger)
         {
             _context = context;
             _mapper = mapper;
             _almacenadorArchivos = almacenadorArchivos;
+            this._logger = logger;
         }
 
         [HttpGet]
@@ -87,21 +90,43 @@ namespace PeliculasAPI.Controllers
                     .Where(x => x.Generos.Select(y => y.GeneroId)
                     .Contains(filtroPeliculasDTO.GeneroId));
             }
+
+            if (!string.IsNullOrEmpty(filtroPeliculasDTO.CampoOrdenacion))
+            {
+                var tipoOrden = filtroPeliculasDTO.OrdenAscendente ? "ascending" : "descending";
+                try
+                {
+                    queryable = queryable.OrderBy($"{filtroPeliculasDTO.CampoOrdenacion} {tipoOrden}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex);
+                }
+                
+            }
+
             await HttpContext.InsertarParametrosPaginacion(queryable, filtroPeliculasDTO.Paginacion.CantidadRegistrosPorPagina);
             List<Pelicula> peliculas = await queryable.Paginar(filtroPeliculasDTO.Paginacion).ToListAsync();
             return _mapper.Map<List<PeliculaDTO>>(peliculas);
         }
 
         [HttpGet("{id:int}", Name = "obtenerPelicula")]
-        public async Task<ActionResult<PeliculaDTO>> Get(int id)
+        public async Task<ActionResult<PeliculaDetallesDTO>> Get(int id)
         {
-            Pelicula pelicula = await _context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
+            Pelicula pelicula = await _context.Peliculas
+                .Include(x => x.Actores)
+                .ThenInclude(y => y.Actor)
+                .Include(x => x.Generos)
+                .ThenInclude(y => y.Genero)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (pelicula == null)
             {
                 return NotFound();
             }
-            return _mapper.Map<PeliculaDTO>(pelicula);
+
+            pelicula.Actores = pelicula.Actores.OrderBy(actores => actores.Orden).ToList();
+            return _mapper.Map<PeliculaDetallesDTO>(pelicula);
         }
 
         [HttpPost]

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PeliculasAPI.DAL.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace PeliculasAPI.DAL.Model
 {
-    public class Pelicula
+    public class Pelicula : IId
     {
         public int Id { get; set; }
         [Required]

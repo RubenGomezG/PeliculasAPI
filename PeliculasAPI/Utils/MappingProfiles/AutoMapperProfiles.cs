@@ -22,6 +22,40 @@ namespace PeliculasAPI.Utils.MappingProfiles
                 .ForMember(x => x.Poster, options => options.Ignore())
                 .ForMember(x => x.Generos, options => options.MapFrom(MapGeneroPelicula))
                 .ForMember(x => x.Actores, options => options.MapFrom(MapActorPelicula));
+
+            CreateMap<Pelicula, PeliculaDetallesDTO>()
+                .ForMember(x => x.Generos, options => options.MapFrom(MapGenerosPeliculaCompleto))
+                .ForMember(x => x.Actores, options => options.MapFrom(MapActoresPeliculaCompleto));
+        }
+
+        private List<GeneroDTO> MapGenerosPeliculaCompleto(Pelicula pelicula, PeliculaDetallesDTO peliculaDetallesDTO)
+        {
+            var resultado = new List<GeneroDTO>();
+            if (peliculaDetallesDTO.Generos == null)
+            {
+                return resultado;
+            }
+
+            foreach (var genero in pelicula.Generos)
+            {
+                resultado.Add(new GeneroDTO { Id = genero.GeneroId, Nombre = genero.Genero.Nombre});
+            }
+            return resultado;
+        }
+
+        private List<ActorPeliculaDetalleDTO> MapActoresPeliculaCompleto(Pelicula pelicula, PeliculaDetallesDTO peliculaDetallesDTO)
+        {
+            var resultado = new List<ActorPeliculaDetalleDTO>();
+            if (peliculaDetallesDTO.Actores == null)
+            {
+                return resultado;
+            }
+
+            foreach (var actor in pelicula.Actores)
+            {
+                resultado.Add(new ActorPeliculaDetalleDTO { ActorId = actor.ActorId, Personaje = actor.Personaje, NombreActor = actor.Actor.Nombre });
+            }
+            return resultado;
         }
 
         private List<GeneroPelicula> MapGeneroPelicula(PeliculaCreacionDTO peliculaCreacionDTO, Pelicula pelicula)

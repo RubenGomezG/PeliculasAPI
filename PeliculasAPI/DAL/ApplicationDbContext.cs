@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PeliculasAPI.DAL.Model;
+using System.Security.Claims;
 
 namespace PeliculasAPI.DAL
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -16,46 +18,31 @@ namespace PeliculasAPI.DAL
         private void SeedData(ModelBuilder modelBuilder)
         {
 
-            //var rolAdminId = "9aae0b6d-d50c-4d0a-9b90-2a6873e3845d";
-            //var usuarioAdminId = "5673b8cf-12de-44f6-92ad-fae4a77932ad";
+            string rolAdminId = "9aae0b6d-d50c-4d0a-9b90-2a6873e3845d";
+            string usuarioAdminId = "5673b8cf-12de-44f6-92ad-fae4a77932ad";
 
-            //var rolAdmin = new IdentityRole()
-            //{
-            //    Id = rolAdminId,
-            //    Name = "Admin",
-            //    NormalizedName = "Admin"
-            //};
+            IdentityRole rolAdmin = new IdentityRole()
+            {
+                Id = rolAdminId,
+                Name = "Admin",
+                NormalizedName = "Admin"
+            };
 
-            //var passwordHasher = new PasswordHasher<IdentityUser>();
+            PasswordHasher<IdentityUser> passwordHasher = new PasswordHasher<IdentityUser>();
 
-            //var username = "felipe@hotmail.com";
+            string username = "felipe@hotmail.com";
 
-            //var usuarioAdmin = new IdentityUser()
-            //{
-            //    Id = usuarioAdminId,
-            //    UserName = username,
-            //    NormalizedUserName = username,
-            //    Email = username,
-            //    NormalizedEmail = username,
-            //    PasswordHash = passwordHasher.HashPassword(null, "Aa123456!")
-            //};
+            IdentityUser usuarioAdmin = new IdentityUser()
+            {
+                Id = usuarioAdminId,
+                UserName = username,
+                NormalizedUserName = username,
+                Email = username,
+                NormalizedEmail = username,
+                PasswordHash = passwordHasher.HashPassword(null, "Aa123456!")
+            };
 
-            //modelBuilder.Entity<IdentityUser>()
-            //    .HasData(usuarioAdmin);
-
-            //modelBuilder.Entity<IdentityRole>()
-            //    .HasData(rolAdmin);
-
-            //modelBuilder.Entity<IdentityUserClaim<string>>()
-            //    .HasData(new IdentityUserClaim<string>()
-            //    {
-            //        Id = 1,
-            //        ClaimType = ClaimTypes.Role,
-            //        UserId = usuarioAdminId,
-            //        ClaimValue = "Admin"
-            //    });
-
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            GeometryFactory geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
             modelBuilder.Entity<SalaDeCine>()
                .HasData(new List<SalaDeCine>
@@ -66,10 +53,10 @@ namespace PeliculasAPI.DAL
                     new SalaDeCine{Id = 6, Nombre = "Village East Cinema", Ubicacion = geometryFactory.CreatePoint(new Coordinate(-73.986227, 40.730898))}
                });
 
-            var aventura = new Genero() { Id = 4, Nombre = "Aventura" };
-            var animation = new Genero() { Id = 5, Nombre = "Animación" };
-            var suspenso = new Genero() { Id = 6, Nombre = "Suspenso" };
-            var romance = new Genero() { Id = 7, Nombre = "Romance" };
+            Genero aventura = new Genero() { Id = 4, Nombre = "Aventura" };
+            Genero animation = new Genero() { Id = 5, Nombre = "Animación" };
+            Genero suspenso = new Genero() { Id = 6, Nombre = "Suspenso" };
+            Genero romance = new Genero() { Id = 7, Nombre = "Romance" };
 
             modelBuilder.Entity<Genero>()
                 .HasData(new List<Genero>
@@ -77,9 +64,9 @@ namespace PeliculasAPI.DAL
                     aventura, animation, suspenso, romance
                 });
 
-            var jimCarrey = new Actor() { Id = 5, Nombre = "Jim Carrey", FechaNacimiento = new DateTime(1962, 01, 17) };
-            var robertDowney = new Actor() { Id = 6, Nombre = "Robert Downey Jr.", FechaNacimiento = new DateTime(1965, 4, 4) };
-            var chrisEvans = new Actor() { Id = 7, Nombre = "Chris Evans", FechaNacimiento = new DateTime(1981, 06, 13) };
+            Actor jimCarrey = new Actor() { Id = 5, Nombre = "Jim Carrey", FechaNacimiento = new DateTime(1962, 01, 17) };
+            Actor robertDowney = new Actor() { Id = 6, Nombre = "Robert Downey Jr.", FechaNacimiento = new DateTime(1965, 4, 4) };
+            Actor chrisEvans = new Actor() { Id = 7, Nombre = "Chris Evans", FechaNacimiento = new DateTime(1981, 06, 13) };
 
             modelBuilder.Entity<Actor>()
                 .HasData(new List<Actor>
@@ -87,7 +74,7 @@ namespace PeliculasAPI.DAL
                     jimCarrey, robertDowney, chrisEvans
                 });
 
-            var endgame = new Pelicula()
+            Pelicula endgame = new Pelicula()
             {
                 Id = 2,
                 Titulo = "Avengers: Endgame",
@@ -95,7 +82,7 @@ namespace PeliculasAPI.DAL
                 FechaEstreno = new DateTime(2019, 04, 26)
             };
 
-            var iw = new Pelicula()
+            Pelicula iw = new Pelicula()
             {
                 Id = 3,
                 Titulo = "Avengers: Infinity Wars",
@@ -103,21 +90,23 @@ namespace PeliculasAPI.DAL
                 FechaEstreno = new DateTime(2019, 04, 26)
             };
 
-            var sonic = new Pelicula()
+            Pelicula sonic = new Pelicula()
             {
                 Id = 4,
                 Titulo = "Sonic the Hedgehog",
                 EnCines = false,
                 FechaEstreno = new DateTime(2020, 02, 28)
             };
-            var emma = new Pelicula()
+
+            Pelicula emma = new Pelicula()
             {
                 Id = 5,
                 Titulo = "Emma",
                 EnCines = false,
                 FechaEstreno = new DateTime(2020, 02, 21)
             };
-            var wonderwoman = new Pelicula()
+
+            Pelicula wonderwoman = new Pelicula()
             {
                 Id = 6,
                 Titulo = "Wonder Woman 1984",
